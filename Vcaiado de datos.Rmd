@@ -1,0 +1,57 @@
+---
+title: "Lectura de datos"
+author: "Valeria Campuzano"
+date: "17/10/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rgdal)
+install.packages("sf")
+library (sf)
+library(plyr)
+library(tidyverse)
+```
+
+## Densidad de vivienda 2010
+```{r mapa vivienda}
+#mapdensidad <- read_sf("~/7 SEMESTRE/Microeconometría/Proyecto/Datos/densidad_vivha/densidad_vivha")
+mapdensidad
+cleanmden <- mapdensidad[-c(1,5,6,7,9,10,11 )] 
+
+```
+
+## Construccción de densidad de vivienda 2020
+```{r densviv 2020}
+hogares<-read_sf("~/7 SEMESTRE/Microeconometría/Proyecto/Datos/hogares-por-colonia/Hogares por colonia")
+cleanhogares <- data.frame(hogares[c(3,4,5,10)])
+```
+## Ingresos Trimestrales 
+```{r ingresos trim}
+#ingresos<-read_sf("~/7 SEMESTRE/Microeconometría/Proyecto/Datos/ingresos_trimestrales/ingresos_trimestrales")
+#cleaningresos <- data.frame(ingresos[c(1,2,3)])
+
+```
+
+## Educación
+```{r educación}
+escuelas <- read_sf("~/7 SEMESTRE/Microeconometría/Proyecto/Datos/equip_basico_educ")
+cleanescuelas <- data.frame(escuelas[c(3,4,6,12)])
+```
+
+## Unión de datasets
+Ya que limpiamos cada base de datos las vamos a unir. Nuestro criterio de unión es la clave de colonia, excepto para las de ingreso con las que usaremos el geographical thing. 
+```{r dataset ingresos}
+dfraw <- list(cleanescuelas, cleanhogares)
+df <- dfraw %>%reduce(full_join, by="cve_col") 
+dfclean <-df[c(1,2,3,5,7)]
+```
+Ya tenemos el dataframe con las variables que queremos, solo falta renombrar las columnas para que sea más entendible
+```{r nicedf}
+dfclean=dfclean%>%
+  rename(Clave_Col = 1, Colonia = 2, Educación_Básica= 3, Alcaldia= 4, Densidad_Vivienda= 5)
+  
+```
+
+ 
